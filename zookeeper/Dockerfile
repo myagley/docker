@@ -1,4 +1,4 @@
-FROM java:7
+FROM tempoiq/java:7
 MAINTAINER TempoIQ
 
 ENV ZOOKEEPER_VER 3.4.6

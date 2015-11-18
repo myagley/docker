@@ -1,20 +1,19 @@
-FROM java:7-jre
+FROM tempoiq/java:7
 MAINTAINER TempoIQ
 
 ENV DRILL_VER 1.2.0
 
 RUN apt-get install -y wget tar
 
-RUN mkdir -p /opt/software
-RUN wget http://getdrill.org/drill/download/apache-drill-${DRILL_VER}.tar.gz -P /opt/software
+RUN wget -q http://getdrill.org/drill/download/apache-drill-${DRILL_VER}.tar.gz && \
+    tar xzf apache-drill-${DRILL_VER}.tar.gz && \
+    rm /apache-drill-${DRILL_VER}.tar.gz* && \
+    mv /apache-drill-${DRILL_VER} /opt/drill
 
-RUN mkdir -p /usr/local/drill
-RUN groupadd -r drill && useradd -d /home/drill -m -r -g drill drill
-RUN chown drill:drill /usr/local/drill
+ADD drill-env.sh /opt/drill/conf/drill-env.sh
 
-USER drill
+WORKDIR /opt/drill
 
-RUN tar -xvzf /opt/software/apache-drill-${DRILL_VER}.tar.gz -C /usr/local/drill
-WORKDIR /usr/local/drill/apache-drill-${DRILL_VER}
+EXPOSE 8047 31010 31011 31012 46655
 
-ENTRYPOINT ["bin/drill-embedded"]
+CMD /opt/drill/bin/drillbit.sh start && tail -f /opt/drill/log/drillbit.out
